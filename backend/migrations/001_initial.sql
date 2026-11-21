@@ -1,3 +1,9 @@
 -- Initial schema is applied idempotently by SQLAlchemy metadata.create_all.
--- Authoritative models: src/models/entities.py (relations, dependencies, reports,
--- audit_logs and users). Dependencies/report snapshots are persisted as MySQL JSON.
+-- Authoritative models: src/models/entities.py
+--   users / relations / dependencies(规则草稿) / reports / audit_logs
+--   rule_periods 规则生效期：uq_rule_period_relation_date(relation_id, effective_from)
+--                 保证同一关系同一生效日唯一，是并发更正冲突的数据库防线；
+--                 idempotency_key 唯一，保证已成功更正的重试不重复登记。
+--   rule_entries 生效期内完整规则状态（期内行不可变，已受理报告沿用原规则）。
+-- reports.commission_date 为委托业务发生日；input_snapshot.rule_provenance 冻结
+--   所用生效期编号、生效日、来源与规则条目。依赖/报告快照以 MySQL JSON 持久化。
